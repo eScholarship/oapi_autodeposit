@@ -42,7 +42,7 @@ pubmed as (
   select [ID], [Publication ID], prf.[File URL]
   FROM [elements-cdl2-reporting].[dbo].[Publication Record] pr, [elements-cdl2-reporting].[dbo].[Publication Record File] prf
   where pr.[Data Source]='Europe PubMed Central' and prf.[Publication Record ID] = pr.[ID] and prf.[Data Source] = 'Europe PubMed Central' and prf.[File URL Accessibility]='Public'
-  and pr.[Publication ID] not in
+  and prf.[File URL] like  'https://europepmc.org/articles/PMC%' and pr.[Publication ID] not in
   (select [Publication ID] from [elements-cdl2-reporting].[dbo].[Publication Record] where [Data Source]='eScholarship')
   and pr.[Publication ID] in
   (SELECT	pur.[Publication ID] FROM [Publication User Relationship] pur WHERE	pur.[Type] = 'Authored by') 

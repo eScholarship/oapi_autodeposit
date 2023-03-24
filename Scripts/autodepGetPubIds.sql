@@ -7,7 +7,7 @@ SELECT pr.[Publication ID] as id,
 FROM [Publication Record] pr, [Publication Record File] prf
 WHERE pr.[Data Source]='Europe PubMed Central' and 
 		prf.[Publication Record ID] = pr.[ID] and 
-		prf.[Data Source] = 'Europe PubMed Central' and 
+		prf.[Data Source] = 'Europe PubMed Central' and prf.[File URL] like  'https://europepmc.org/articles/PMC%' and 
 		prf.[File URL Accessibility]='Public' and 
 		pr.[Publication ID] not in
 		(SELECT [Publication ID] 
