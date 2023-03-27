@@ -4,7 +4,7 @@ import traceback
 from urllib import request
 from urllib import error
 import json
-
+import time
 ########################################
 #
 # Interfaces with escholarship graphQL 
@@ -25,10 +25,10 @@ class graphClient:
 
     def _send(self, query):
         data = {'query': query}
-        
+        time.sleep(10)
         req = request.Request(self.endpoint, json.dumps(data).encode('utf-8'), self.headers)
         try:
-            response = request.urlopen(req, timeout=180)
+            response = request.urlopen(req, timeout=1800)
             return response.read().decode('utf-8')
         except error.HTTPError as e:
             print(e.read())

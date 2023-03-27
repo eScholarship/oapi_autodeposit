@@ -11,6 +11,7 @@ from loggingIntf import logger
 from escholIntf import eschol
 from escholDBIntf import escholDB
 import depositFields
+import time
 
 class repQueries:
 
@@ -158,6 +159,7 @@ class controller:
                 res = self.escholQ.depositItem(self.pub_depInputdict[x])
                 self.log.saveResult(x, res)
                 self.depositCount += 1
+                time.sleep(100)
         print("End: processCurrentBatch")
 
     def createIdIfNeeded(self, pubId):
