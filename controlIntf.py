@@ -199,9 +199,12 @@ class controller:
         if pubId in self.pub_peopledict:
             outstr += depositFields.authors(self.pub_peopledict[pubId]).outstr + ','
  
-        # use pdg and then department if avaiable  
-        outstr += depositFields.units(self.pub_userdict[pubId], self.user_infodict, self.user_deptdict, self.groupToSeries, isAfterRgpoCutoff).outstr + ','
-        
+        # use pdg and then department if avaiable 
+        if isAfterRgpoCutoff:
+            outstr += depositFields.units(self.pub_userdict[pubId], self.user_infodict, self.user_deptdict, self.groupToSeries, isAfterRgpoCutoff, self.pub_grantdict[pubId], self.grant_infodict).outstr + ','
+        else:
+            outstr += depositFields.units(self.pub_userdict[pubId], self.user_infodict, self.user_deptdict, self.groupToSeries, isAfterRgpoCutoff, None, None).outstr + ','
+ 
         outstr = outstr.replace(",,",",")[:-1]
      
         print(outstr)

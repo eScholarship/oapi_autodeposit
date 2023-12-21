@@ -7,6 +7,7 @@
 ########################################
 
 import os
+import re
 from urllib.parse import urlparse
 
 
@@ -213,9 +214,9 @@ class units:
     baseStr = "units:[{param}]"
     baseStr2 = "\"{param}\","
     campuses = ['ucb','ucd','uci','ucm','ucr','ucsb','ucsc','ucsd','ucsf','ucla']
-    rgpo = ['cbcrp','chrp','trdrp','other']
+    rgpo = ['cbcrp','chrp','trdrp','ucri']
     rgposeries = ['cbcrp_rw','chrp_rw','trdrp_rw','ucri_rw']
-    def __init__(self, userslist, userinfodict, userdepdict, groupToUnit, isFunded):
+    def __init__(self, userslist, userinfodict, userdepdict, groupToUnit, isFunded, grants, grantInfo):
         self.outstr = ""
         pdgs = []
         series = []
@@ -236,8 +237,11 @@ class units:
         if len(userdepdict) > 0:
             self.adddeptseries(series, userslist, userdepdict, groupToUnit)
 
-        for pdg in pdgs:
-            self.addRgpo(pdg, series, isFunded)
+        # add to RGPO funding based on the actual grants associated with the article
+        if isFunded:
+            for pdg in pdgs:
+                if 'rgpo' in pdg and 'nonuc' not in pdg:
+                    self.addRgpo(series, grants, grantInfo)
 
         #remove dups
         series = list(dict.fromkeys(series))
@@ -252,21 +256,25 @@ class units:
         #finally
         self.outstr = self.baseStr.format(param=self.outstr)
 
-    def addRgpo(self, pdg, series,isFunded):
+    def addRgpo(self, series, grants, grantInfo):
         #see if rgpo is mentioned and if so what suffix is added
-        if 'rgpo' in pdg and 'nonuc' not in pdg:
-            if isFunded is False:
-                series.append('rgpo_rw')
-            else:
+        isFunded = False
+        for g in grants:
+            if grantInfo[g][0] and grantInfo[g][1]:
                 for i in range(len(self.rgpo)):
-                    if self.rgpo[i] in pdg:
+                    if re.search(self.rgpo[i], grantInfo[g][0], re.IGNORECASE):
                         series.append(self.rgposeries[i])
+                        isFunded = True
+        if isFunded:
+            series.append('rgpo_rw')
 
 
     def adddeptseries(self, series, userslist, userdepdict,groupToUnit):
         for u in userslist:
             if u in userdepdict:
                 dept = str(userdepdict[u])
+                if dept in groupToUnit:
+                    series.append(groupToUnit[dept])
                 series.append(groupToUnit[dept])
 
 
