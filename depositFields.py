@@ -224,24 +224,31 @@ class units:
             if userinfodict[userids][4] not in pdgs:
                 pdgs.append(userinfodict[userids][4])
 
-        for pdg in pdgs:
-            if 'lbl' in pdg:
-                series.append('lbnl_rw')
-
         #add campus postprints as needed
         for pdg in pdgs:                    
             for campus in self.campuses:
                 if campus in pdg:
                     series.append(campus + '_postprints') 
+        #add lbl
+        for pdg in pdgs:
+            if 'lbl' in pdg:
+                series.append('lbnl_rw')
 
-        if len(userdepdict) > 0:
-            self.adddeptseries(series, userslist, userdepdict, groupToUnit)
 
-        # add to RGPO funding based on the actual grants associated with the article
+        # add rgpo unit and save funding info
+        rgpoFunds = []
         if isFunded:
             for pdg in pdgs:
                 if 'rgpo' in pdg and 'nonuc' not in pdg:
-                    self.addRgpo(series, grants, grantInfo)
+                    self.addRgpo(series, grants, grantInfo, rgpoFunds)
+
+        # add department series
+        if len(userdepdict) > 0:
+            self.adddeptseries(series, userslist, userdepdict, groupToUnit)
+        
+        # add rgpo funding units
+        for unit in rgpoFunds:
+            series.append(unit)
 
         #remove dups
         series = list(dict.fromkeys(series))
@@ -256,17 +263,18 @@ class units:
         #finally
         self.outstr = self.baseStr.format(param=self.outstr)
 
-    def addRgpo(self, series, grants, grantInfo):
+    def addRgpo(self, series, grants, grantInfo, rgpoFunds):
         #see if rgpo is mentioned and if so what suffix is added
         isFunded = False
         for g in grants:
             if grantInfo[g][0] and grantInfo[g][1]:
                 for i in range(len(self.rgpo)):
                     if re.search(self.rgpo[i], grantInfo[g][0], re.IGNORECASE):
-                        series.append(self.rgposeries[i])
+                        rgpoFunds.append(self.rgposeries[i])
                         isFunded = True
         if isFunded:
             series.append('rgpo_rw')
+        return
 
 
     def adddeptseries(self, series, userslist, userdepdict,groupToUnit):
