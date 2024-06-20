@@ -19,7 +19,7 @@ SELECT pr.[Publication ID] as pubId
 		  WHERE pr.[Data Source]='Europe PubMed Central'
 				 and pr.[Publication ID] in
 					(PUB_IDs) )
-
+  order by seq
 ;
 
 COMMIT TRANSACTION
