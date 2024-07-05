@@ -32,7 +32,7 @@ class logger:
 
 
     def getArk(self, pubId):
-        print("read ark for this pubId")
+        #print("read ark for this pubId")
         query = self.queryArk.format(param=pubId)
         #self.cursor.execute(self.queryArk,(str(pubId)))
         self.cursor.execute(query)
@@ -43,7 +43,7 @@ class logger:
         return ark
 
     def getStatus(self, pubId):
-        print("read status for this pubId")
+        #print("read status for this pubId")
         query = self.queryStatus.format(param=pubId)
         self.cursor.execute(query)
 
@@ -54,14 +54,14 @@ class logger:
         return status
 
     def saveArk(self, pubId, ark):
-        print("save ark for this pubId")
+        #print("save ark for this pubId")
         lastSent = self.x.strftime(self.f)
         query = self.insertArk.format(param1=pubId, param2=ark, param3=lastSent)
         self.cursor.execute(query)
         self.cnxn.commit()
 
     def saveDepInput(self, pubId, input):
-        print("save input for this pubId")
+        #print("save input for this pubId")
         lastSent = self.x.strftime(self.f)
         query = self.updatedep.format(param1=input, param2=lastSent, param3=pubId)
         self.cursor.execute(query)
@@ -76,7 +76,7 @@ class logger:
 
 
     def saveUrl(self, pubId, url):
-        print("save url for this pubId")
+        #print("save url for this pubId")
         query = self.updateurl.format(param1=url, param2=pubId)
         self.cursor.execute(query)
         self.cnxn.commit()
