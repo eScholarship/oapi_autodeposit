@@ -166,8 +166,14 @@ class authors:
         items = []
         self.outstr = ""
 
+        # in case publication records are merged on Elements side, 
+        # take one set of authors
+        # the author list from query is sorted by order
+        lastorder = -1
         for p in people:
-            items.append(user(p))
+            if p[0] != lastorder:
+                items.append(user(p))
+            lastorder = p[0]
 
         for i in items:
             self.outstr += i.outstr
