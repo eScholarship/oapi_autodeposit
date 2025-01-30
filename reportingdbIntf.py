@@ -11,7 +11,7 @@ import creds
 class reportingdb:
 
     def __init__(self):
-        self.cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+creds.repDb.server+';DATABASE='+creds.repDb.database+';UID='+creds.repDb.username+';PWD='+ creds.repDb.password)
+        self.cnxn = pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER='+creds.repDb.server+';DATABASE='+creds.repDb.database+';UID='+creds.repDb.username+';PWD='+ creds.repDb.password + ';TrustServerCertificate=yes;')
         self.cursor = self.cnxn.cursor()
 
 
