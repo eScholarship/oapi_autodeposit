@@ -19,17 +19,18 @@ class reportingdb:
         print("get the publication ids")
         self.cursor.execute(query)
         puburl = {}
+        pubmedid = {}
         for row in self.cursor:
             puburl[row[0]] = row[1]
-
-        return puburl
+            pubmedid[row[0]] = row[2]
+        return puburl, pubmedid
 
     def getPubMeta(self, query):
         print("get the publication ids")
         self.cursor.execute(query)
         pubmeta = {}
         for row in self.cursor:
-            pubmeta[row[0]] = (row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11])
+            pubmeta[row[0]] = (row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12])
 
         return pubmeta;
 

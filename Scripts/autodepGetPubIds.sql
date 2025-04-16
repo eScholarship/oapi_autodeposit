@@ -3,10 +3,12 @@ COMMIT TRANSACTION
 BEGIN TRANSACTION
 
 SELECT pr.[Publication ID] as id,
-		 prf.[File URL] as url
+		 prf.[File URL] as url,
+		 pr.[Data Source Proprietary ID] as med_id
 FROM [Publication Record] pr, [Publication Record File] prf
 WHERE pr.[Data Source]='Europe PubMed Central' and 
-		prf.[Publication Record ID] = pr.[ID] and 
+                pr.[types] != 'Preprint' and
+                prf.[Publication Record ID] = pr.[ID] and 
 		prf.[Data Source] = 'Europe PubMed Central' and prf.[File URL] like  'https://europepmc.org/articles/PMC%' and 
 		prf.[File URL Accessibility]='Public' and 
 		pr.[Publication ID] not in
@@ -17,7 +19,8 @@ WHERE pr.[Data Source]='Europe PubMed Central' and
 			(SELECT	pur.[Publication ID] 
 			 FROM [Publication User Relationship] pur 
 			 WHERE	pur.[Type] = 'Authored by') 
-
+order by id desc
+		
 ;
 
 COMMIT TRANSACTION

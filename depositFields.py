@@ -23,6 +23,30 @@ class sourceInfo:
     def __init__(self, pubId):
         self.outstr = self.baseStr.format(param = pubId )
 
+
+########################################
+#
+# Fills in rights info if provided
+#
+########################################
+class rights:
+    baseStr = 'rights: \"{param}\"'
+    mapping = {'cc0':'https://creativecommons.org/publicdomain/zero/1.0/',
+               'cc by':'https://creativecommons.org/licenses/by/4.0/',
+               'cc by-nc':'https://creativecommons.org/licenses/by-nc/4.0/',
+               'cc by-nc-nd':'https://creativecommons.org/licenses/by-nc-nd/4.0/',
+               'cc by-nc-sa':'https://creativecommons.org/licenses/by-nc-sa/4.0/',
+               'cc by-nd':' https://creativecommons.org/licenses/by-nd/4.0/',
+               'cc by-sa':'https://creativecommons.org/licenses/by-sa/4.0/'}
+    def __init__(self, lic, pmclic):
+        # use license from EuroPMC, if not present then from Elements        
+        if pmclic in self.mapping:
+            self.outstr = self.baseStr.format(param = self.mapping[pmclic] )
+        elif lic in self.mapping:
+                self.outstr = self.baseStr.format(param = self.mapping[lic] )
+        else:
+            self.outstr = ""
+
 ########################################
 #
 # Provides publically available url for escholarship to download 

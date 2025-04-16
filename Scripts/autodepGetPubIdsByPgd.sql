@@ -7,14 +7,15 @@ BEGIN TRANSACTION
 ;WITH pubmed as (
   SELECT [ID], 
 		 [Publication ID], 
-		 prf.[File URL]
+		 prf.[File URL],
+		 pr.[Data Source Proprietary ID]		
   FROM [Publication Record] pr, [Publication Record File] prf
   WHERE pr.[Data Source]='Europe PubMed Central' and 
 		prf.[Publication Record ID] = pr.[ID] and 
 		prf.[Data Source] = 'Europe PubMed Central' and prf.[File URL] like  'https://europepmc.org/articles/PMC%' and 
 		prf.[File URL Accessibility]='Public' and 
 		pr.[Publication ID] not in
-		(SELECT [Publication ID] 
+		(SELECT [Publication ID]	
 		 FROM [Publication Record] 
 		 WHERE [Data Source]='eScholarship')
 		 and pr.[Publication ID] in
@@ -23,14 +24,14 @@ BEGIN TRANSACTION
 			 WHERE	pur.[Type] = 'Authored by') 
 )
 SELECT	    pur.[Publication ID] as id,
-			pubmed.[File URL] as url
-
+			pubmed.[File URL] as url,
+			pubmed.[Data Source Proprietary ID] as med_id
 FROM		[User], pubmed, [Publication User Relationship] pur
 WHERE		[User].ID = pur.[User ID] and 
 			pur.[Publication ID] = pubmed.[Publication ID] and 
 			pur.[Type] = 'Authored by' and
 			[User].[Primary Group Descriptor] like 'ucm-%' 
-
+order by id desc
 ;
 
 COMMIT TRANSACTION

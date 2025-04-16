@@ -12,8 +12,8 @@ SELECT		pub.ID as id,
 			pub.[keywords],
 			pub.[publication-date]  as pubdate,
 			pub.[Type],
-			pub.[volume]
-
+			pub.[volume],
+                        pub.[publisher-licence] as lic
 FROM		[Publication] pub
 WHERE		pub.[publication-date] is not null and
 			pub.[types] not like '%Retracted%' and
