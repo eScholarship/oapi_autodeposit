@@ -15,12 +15,13 @@ BEGIN TRANSACTION
 			[Group].[OA Policy ID],
 			-- get the OA Policy name
 			(	SELECT	[Name]
-				FROM	[OA Policy] oap
-				WHERE	oap.[ID] = [Group].[OA Policy ID]
+				FROM	[OA Scheme] oas
+				WHERE	oas.[ID] = [Group].[OA Policy ID]
 			) as [OA Policy Name]
 	FROM	[User]
-			JOIN [Group] ON [Group].[Primary Group Descriptor] = [User].[Primary Group Descriptor]
-						 OR ([User].[Primary Group Descriptor] IS NULL AND [Group].[ID] = 1) -- Users without a primary group descriptor are assigned to the top-level group
+			JOIN [Group] 
+				ON [Group].[Primary Group Descriptor] = [User].[Primary Group Descriptor]
+				OR ([User].[Primary Group Descriptor] IS NULL AND [Group].[ID] = 1) -- Users without a primary group descriptor are assigned to the top-level group
 	WHERE	-- limit to current, active, academic users
 			[User].[Is Current Staff] = 1
 			AND [User].[Is Login Allowed] = 1
@@ -31,21 +32,31 @@ BEGIN TRANSACTION
 puroa as (
 	SELECT	pur.[Publication ID],
 			pur.[User ID],
-			poap.[OA Policy ID] as [OA Policy ID],
-			poap.[Compliance Status]
-	FROM	[Publication OA Policy] poap
-			JOIN [Publication User Relationship] pur
-				ON pur.[Publication ID] = poap.[Publication ID]
+			poss.[OA Scheme ID] as [OA Policy ID],
+			oascs.[Display Name] as [Compliance Status]
+	FROM	[Publication OA Scheme State] poss
+		JOIN [OA State Compliance Status] oascs
+			ON poss.[Compliance Status ID] = oascs.[ID]
+		JOIN [Publication User Relationship] pur
+			ON pur.[Publication ID] = poss.[Publication ID]
 	WHERE	pur.[Type] = 'Authored by'	-- limit to authorship links (optional)
 ),
 pubmed as (
   select [ID], [Publication ID], prf.[File URL]
   FROM [elements-cdl2-reporting].[dbo].[Publication Record] pr, [elements-cdl2-reporting].[dbo].[Publication Record File] prf
-  where pr.[Data Source]='Europe PubMed Central' and prf.[Publication Record ID] = pr.[ID] and prf.[Data Source] = 'Europe PubMed Central' and prf.[File URL Accessibility]='Public'
-  and prf.[File URL] like  'https://europepmc.org/articles/PMC%' and pr.[Publication ID] not in
-  (select [Publication ID] from [elements-cdl2-reporting].[dbo].[Publication Record] where [Data Source]='eScholarship')
-  and pr.[Publication ID] in
-  (SELECT	pur.[Publication ID] FROM [Publication User Relationship] pur WHERE	pur.[Type] = 'Authored by') 
+  where pr.[Data Source]='Europe PubMed Central' 
+  	and prf.[Publication Record ID] = pr.[ID] 
+  	and prf.[Data Source] = 'Europe PubMed Central' 
+  	and prf.[File URL Accessibility]='Public'
+  	and prf.[File URL] like  'https://europepmc.org/articles/PMC%' 
+  	and pr.[Publication ID] not in (
+  		select [Publication ID] 
+  		from [elements-cdl2-reporting].[dbo].[Publication Record] 
+  		where [Data Source]='eScholarship')
+  	and pr.[Publication ID] in (
+  		SELECT	pur.[Publication ID] 
+  		FROM [Publication User Relationship] pur 
+  		WHERE	pur.[Type] = 'Authored by') 
 )
 SELECT		u.[ID],
 			u.[Last Name],
