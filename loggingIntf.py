@@ -17,6 +17,9 @@ class logger:
     updatedep = "update autodeposits set deposit='{param1}',status=2,lastSent='{param2}' where pubId='{param3}'"
     updateres = "update autodeposits set result='{param1}',status=3,lastSent='{param2}' where pubId='{param3}'"
     updateurl = "update autodeposits set url='{param1}' where pubId='{param2}'"
+    insertskipId = "insert into skipPubIds (pubId, notes) values({param1}, '{param2}')"
+    insertskipIdMany = "insert into skipPubIds (pubId, notes) values(%s, %s)"
+    queryskipIds = "select pubId from skipPubIds"
 
 
     def __init__(self):
@@ -80,3 +83,28 @@ class logger:
         query = self.updateurl.format(param1=url, param2=pubId)
         self.cursor.execute(query)
         self.cnxn.commit()
+
+
+    def getSkipIds(self):
+        print("read pubIds to skip")
+        self.cursor.execute(self.queryskipIds)
+        pubIds = []
+        for row in self.cursor:
+            pubIds.append(row[0])
+        return pubIds
+
+    def saveSkipId(self, pubId, note):
+        print("save this pubId to skip")
+        query = self.insertskipId.format(param1=pubId, param2=note)
+        self.cursor.execute(query)
+        self.cnxn.commit()
+
+    def saveSkipIdMany(self, pubIds):
+        print("save pubId set to skip")
+        params = []
+        for id in pubIds:
+            params.append((id, "NoMeta"))
+        if len(params) > 1:
+            self.cursor.executemany(self.insertskipIdMany, params)
+            self.cnxn.commit()
+        return

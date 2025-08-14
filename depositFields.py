@@ -36,14 +36,11 @@ class rights:
                'cc by-nc':'https://creativecommons.org/licenses/by-nc/4.0/',
                'cc by-nc-nd':'https://creativecommons.org/licenses/by-nc-nd/4.0/',
                'cc by-nc-sa':'https://creativecommons.org/licenses/by-nc-sa/4.0/',
-               'cc by-nd':' https://creativecommons.org/licenses/by-nd/4.0/',
+               'cc by-nd':'https://creativecommons.org/licenses/by-nd/4.0/',
                'cc by-sa':'https://creativecommons.org/licenses/by-sa/4.0/'}
-    def __init__(self, lic, pmclic):
-        # use license from EuroPMC, if not present then from Elements        
-        if pmclic in self.mapping:
-            self.outstr = self.baseStr.format(param = self.mapping[pmclic] )
-        elif lic in self.mapping:
-                self.outstr = self.baseStr.format(param = self.mapping[lic] )
+    def __init__(self, lic):
+        if lic in self.mapping:
+            self.outstr = self.baseStr.format(param = self.mapping[lic] )
         else:
             self.outstr = ""
 
@@ -117,12 +114,17 @@ class identity:
     #localIDs:[{id:"10.5888/pcd14.160381",scheme:DOI},{id:"1801972",scheme:OA_PUB_ID}],
     baseStr1 = "id:\"{param}\",scheme:OA_PUB_ID"
     baseStr2 = "id:\"{param}\",scheme:DOI"
+    baseStr3 = "id:\"{param}\",scheme:OTHER_ID, subScheme:\"pmid\""
+    
     baseStr = "localIDs:[{param}]"
-    def __init__(self, doi, pubId):
+    def __init__(self, doi, pubId, pmid):
         idstr = '{' + self.baseStr1.format(param = pubId) + '}'
         if doi and len(doi) > 0:
             idstr += ',' + '{' +self.baseStr2.format(param = doi) + '}'
+        if pmid:
+            idstr += ',' + '{' +self.baseStr3.format(param = pmid) + '}'
         self.outstr = self.baseStr.format(param = idstr)
+
 
 ########################################
 #

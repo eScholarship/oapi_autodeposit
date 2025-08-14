@@ -111,6 +111,10 @@ class controller:
         print("Start: performDeposits")
         self.getEscholSeries()
         self.getAllPubIds()
+        skipIds = self.log.getSkipIds()
+
+        # remove the item ids that are to be skipped
+        self.allpubIds[:] = [x for x in self.allpubIds if x not in skipIds]
         endIndex = len(self.allpubIds)
         print("pubIds retrieved: " + str(endIndex))
         while self.curend < endIndex:
@@ -125,6 +129,12 @@ class controller:
             self.getGrantInfo(pubIds)
             self.getPeople(pubIds)
             self.processCurrentBatch()
+            # save the ids where metadata is not found and add those to skip list
+            # commenting out this code to avoid premature addition to skip list
+            # keeping the code to activate once a year to update skip list
+            # datafoundIds = list(self.pub_metadict.keys())
+            # self.curset[:] = [x for x in self.curset if x not in datafoundIds]
+            # self.log.saveSkipIdMany(self.curset)            
         print("End: performDeposits")
 
     ########################################
@@ -197,30 +207,34 @@ class controller:
         print("Best effort to get lic from EuroPMC")
         # confirm that the id is MED:<>
         if not (self.pub_mediddict[pubid] and self.pub_mediddict[pubid].startswith("MED:")):
-            return None
+            return None, None
         # get the med id
         medid = self.pub_mediddict[pubid][4:] # remove MED: prefix
         req_url = f'https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID:{medid}&resultType=core&format=json'
-        return self.requestLicense(req_url)
+        return self.requestLicensePmid(req_url)
 
     ########################################
     #
-    #   Calls EuroPMC for one item
+    #   Calls EuroPMC for one item  
     #
     ########################################
-    def requestLicense(self, requrl):
+    def requestLicensePmid(self, requrl):        
         print("request for one med id")
         try:
             response = request.urlopen(requrl)
             epmc_data = json.loads(response.read().decode('utf-8'))
             if "resultList" in epmc_data and "result" in epmc_data["resultList"]:
                 result = epmc_data["resultList"]["result"][0]
+                lic = None
+                pmid = None
                 if "license" in result:
-                    return result["license"]
-            return None
+                    lic = result["license"]
+                if "pmid" in result:
+                    pmid = result["pmid"]
+            return lic, pmid
         except Exception as e:
             print(e)
-            return None
+            return None, None
 
     ########################################
     #
@@ -241,9 +255,15 @@ class controller:
         # based on metadata - such as ones missing pubdate
         # so use the metadata dict to determine what to deposit
         for x in self.pub_metadict:
+            # if present in skip list - continue
             s = self.log.getStatus(x)
+            ccLicense, pmid = self.getEuroPmcLicense(x)
+            if ccLicense is None:
+                # save addtoskip
+                self.log.saveSkipId(x,"No EuroPMC CC")
+                continue
             if s != 3:
-                self.pub_depInputdict[x] = self.buildDepositInput(x)
+                self.pub_depInputdict[x] = self.buildDepositInput(x, ccLicense, pmid)
                 self.log.saveDepInput(x, self.pub_depInputdict[x])
                 res = self.escholQ.depositItem(self.pub_depInputdict[x])
                 self.log.saveResult(x, res)
@@ -268,13 +288,12 @@ class controller:
     #   Build json for eschol deposit
     #
     ########################################
-    def buildDepositInput(self, pubId):
+    def buildDepositInput(self, pubId, ccLicense, pmid):
         print("build the deposit input")
         meta = self.pub_metadict[pubId]
         isFunding = pubId in self.pub_grantdict
         outstr = ''
         isAfterRgpoCutoff = meta[8] and str(meta[8]) > '2017-01-08' and isFunding
-        ccLicense = self.getEuroPmcLicense(pubId)
         outstr += depositFields.sourceInfo(pubId).outstr + ','
         outstr += depositFields.content(self.pub_arkdict[pubId], self.pub_urldict[pubId]).outstr + ','
         if meta[0]:
@@ -283,14 +302,15 @@ class controller:
             outstr += depositFields.title(meta[3]).outstr + ','
         if meta[8]:
             outstr += depositFields.pubdate(str(meta[8])).outstr + ','
-        if meta[11] or ccLicense:
-            outstr += depositFields.rights(str(meta[11]).lower, ccLicense).outstr + ','
+        if ccLicense:
+            outstr += depositFields.rights(ccLicense).outstr + ','
+
         if meta[2]:
             outstr += depositFields.journal(meta[2]).outstr + ','
         if meta[7]:
             outstr += depositFields.keywords(meta[7]).outstr + ','
         
-        outstr += depositFields.identity(meta[4], pubId).outstr + ','
+        outstr += depositFields.identity(meta[4], pubId, pmid).outstr + ','
         outstr += depositFields.journalMeta(meta[5],meta[6],meta[10]).outstr + ','
 
         if isFunding is True:
