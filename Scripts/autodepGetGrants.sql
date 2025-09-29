@@ -3,7 +3,7 @@ COMMIT TRANSACTION
 BEGIN TRANSACTION
 SELECT		gpr.[Publication ID] as pubId,
 			g.ID as grantId,
-			g.[funder-name] as fname,
+			g.[funder Name] as fname,
 			g.[funder-reference] as fref
 
 FROM		[Grant] g, [Grant Publication Relationship] gpr
