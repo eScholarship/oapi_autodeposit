@@ -1,6 +1,14 @@
 OAPI Auto deposit tool
 ======================
-This tool obtains metadata and file url for eligible publications from Elements and deposits in eScholarship. The eligible publications are the ones covered under Open Access Policy that are claimed by UC author and where open access public pdf is available. 
+This repository contains a Python-based tool that automates the deposit of eligible publications from Elements into eScholarship, the University of California’s open access repository. It identifies publications covered under UC’s Open Access Policy that are claimed by UC authors and have publicly available PDFs, then deposits them using eScholarship’s GraphQL APIs.
+
+Features
+------------------------
+* Retrieves metadata and file URLs for eligible publications from Elements
+* Transforms publication data into eScholarship’s required format
+* Deposits items via GraphQL API
+* Logs deposit activity and errors
+* Interfaces with multiple databases for reporting and control
 
 Description of the files
 ------------------------
