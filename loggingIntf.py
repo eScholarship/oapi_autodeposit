@@ -29,7 +29,8 @@ class logger:
                               password=creds.loggingDb.password,
                               host=creds.loggingDb.server,
                               database=creds.loggingDb.database,
-                              port=creds.loggingDb.port)
+                              port=creds.loggingDb.port,
+                              auth_plugin='mysql_native_password')
 
         self.cursor = self.cnxn.cursor()
 

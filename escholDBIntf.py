@@ -18,7 +18,8 @@ class escholDB:
                               password=creds.escholDB.password,
                               host=creds.escholDB.server,
                               database=creds.escholDB.database,
-                              port=creds.escholDB.port)
+                              port=creds.escholDB.port,
+                              auth_plugin='mysql_native_password')
 
         self.cursor = self.cnxn.cursor()
 
