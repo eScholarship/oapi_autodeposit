@@ -65,6 +65,17 @@ class eschol:
             }
             '''
 
+
+    fileMutation = '''
+            mutation{
+              replaceFiles(input:{REP_INPUT})
+              {
+                message
+              }
+            }
+            '''
+
+
     def __init__(self):
         self.client = graphClient(creds.eschol.url)
 
@@ -122,4 +133,17 @@ class eschol:
             print(traceback.format_exc())
             raise
 
+    def replaceFile(self, ark, url, name):
+        replaceInput = f'id: \"{ark}\", contentLink: \"{url}\" contentFileName:\"{name}\"'
+        replaceQuery = self.fileMutation.replace("REP_INPUT", replaceInput)
+        try:
+           result = self.client.execute(replaceQuery)
+
+           print(result)
+           return result
+        except: 
+            print("Exception Info")
+            print(str(sys.exc_info()[1]))
+            print(traceback.format_exc())
+            raise
 

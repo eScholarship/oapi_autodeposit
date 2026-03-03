@@ -20,7 +20,7 @@ class logger:
     insertskipId = "insert into skipPubIds (pubId, notes) values({param1}, '{param2}')"
     insertskipIdMany = "insert into skipPubIds (pubId, notes) values(%s, %s)"
     queryskipIds = "select pubId from skipPubIds"
-
+    queryArkUrl = "select url from autodeposits where ark='{param}'"
 
     def __init__(self):
         print("connect to DB here")
@@ -109,3 +109,12 @@ class logger:
             self.cursor.executemany(self.insertskipIdMany, params)
             self.cnxn.commit()
         return
+
+    def getArkUrl(self, ark):
+        query = self.queryArkUrl.format(param=ark)
+        self.cursor.execute(query)
+        url = None
+        for row in self.cursor:
+            url = row[0]
+
+        return url
